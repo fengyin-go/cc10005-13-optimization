@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { request } from '@/api/client'
 
+import CausalityPanel from './causality'
+
 const ENDPOINT = '/api/monitor'
 const columns = [
   "指标编号",
@@ -42,6 +44,7 @@ const stats = [
 type Row = Record<string, string | number | null>
 
 export default function MonitorView() {
+  const [tab, setTab] = useState<'entries' | 'causality'>('entries')
   const [rows, setRows] = useState<Row[]>([])
   const [total, setTotal] = useState(0)
   const [errorMessage, setErrorMessage] = useState('')
@@ -101,6 +104,27 @@ export default function MonitorView() {
         </div>
       </header>
 
+      <div className="tab-bar">
+        <button
+          className={`tab-btn${tab === 'entries' ? ' active' : ''}`}
+          type="button"
+          onClick={() => setTab('entries')}
+        >
+          指标管理
+        </button>
+        <button
+          className={`tab-btn${tab === 'causality' ? ' active' : ''}`}
+          type="button"
+          onClick={() => setTab('causality')}
+        >
+          通知因果视图
+        </button>
+      </div>
+
+      {tab === 'causality' ? (
+        <CausalityPanel />
+      ) : (
+        <>
       <div className="stat-row">
         {stats.map((item) => (
           <article key={item.label} className="stat-card">
@@ -157,6 +181,8 @@ export default function MonitorView() {
         <span>共 {total} 条采集监控记录</span>
         {errorMessage && <span className="error-text">{errorMessage}</span>}
       </footer>
+        </>
+      )}
     </section>
   )
 }
